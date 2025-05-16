@@ -1,0 +1,31 @@
+! This is the syntax to impute missing covariate data in Mplus
+
+
+title: Multiple imputation for missing covariate data 
+
+data: file = CLPM_data_asd.csv;
+
+variable: 
+names = id asd age_t1 age_t2 age_t3 age_t4 int_t1 int_t2 int_t3 int_t4 
+slp_t1 slp_t2 slp_t3 slp_t4 sex postndep cceianx2 epi mat_class mat_edu fin_probs;
+
+usevariables = sex postndep cceianx2 epi mat_class mat_edu fin_probs;
+
+auxiliary = asd age_t1 age_t2 age_t3 age_t4 int_t1 int_t2 int_t3 int_t4 
+slp_t1 slp_t2 slp_t3 slp_t4;
+
+missing = all(-888);
+
+data imputation: 
+
+impute = sex postndep cceianx2 epi mat_class mat_edu fin_probs;
+
+ndatasets = 50;
+
+save = imp_cov*.dat;
+
+
+analysis:
+type = basic;
+
+output: tech8;

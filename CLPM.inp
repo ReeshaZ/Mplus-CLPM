@@ -1,0 +1,65 @@
+! This is the syntax to run an RI-CLPM of sleep duration and internalising problems in 
+the autistic subgroup in ALSPAC
+
+! This syntax assumed the data is already cleaned an in wide format 
+
+
+TITLE: CLPM 
+
+DATA: file = CLPM_data_asd.csv;
+
+VARIABLE: 
+names = id asd age_t1 age_t2 age_t3 age_t4 int_t1 int_t2 int_t3 int_t4 
+slp_t1 slp_t2 slp_t3 slp_t4 sex postndep cceianx2 epi mat_class mat_edu fin_probs;
+
+usevariables = int_t1 int_t2 int_t3 int_t4 slp_t1 slp_t2 slp_t3 slp_t4;
+
+auxiliary = id;
+missing = all(-222);
+
+ANALYSIS: 
+model = nocov; ! Sets all defeault covariances to zero 
+
+MODEL: 
+! Create between components (random intercepts) 
+RIint BY int_t1@1 int_t2@1 int_t3@1 int_t4@1;
+RIslp BY slp_t1@1 slp_t2@1 slp_t3@1 slp_t4@1;
+
+! Create within-person centered variables 
+wint1 BY int_t1@1;
+wint2 BY int_t2@1;
+wint3 BY int_t3@1;
+wint4 BY int_t4@1;
+
+wslp1 BY slp_t1@1;
+wslp2 BY slp_t2@1;
+wslp3 BY slp_t3@1;
+wslp4 BY slp_t4@1;
+
+! Constrain measurement error variances to 0
+int_t1-slp_t4@0;
+
+! Estimate lagged effects between within-person centered variables
+wint2 wslp2 ON wint1 wslp1;
+wint3 wslp3 ON wint2 wslp2;
+wint4 wslp4 ON wint3 wslp3;
+
+! Estimate covariance between random intercepts 
+RIint WITH RIslp;
+
+! Estimate covariance between within-person components at first wave
+wint1 WITH wslp1;
+
+! Estimate covariances between residuals of within-person components 
+wint2 WITH wslp2;
+wint3 WITH wslp3;
+wint4 WITH wslp4;
+
+
+OUTPUT: tech1 STDYX sampstat cinterval;
+
+
+
+
+
+
